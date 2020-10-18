@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: siwoo-aks-data
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: siwoo-aks-data
+  template:
+    metadata:
+      labels:
+        app: siwoo-aks-data
+    spec:
+      containers:
+      - name: siwoo-aks-data
+        image: sm123tt/siwoo-aks-data:0.0.1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8081
+        env:
+        - name: env
+          value: dev
+        - name: db_url
+          value: null
+        - name: db_username
+          value: null
+        - name: db_password
+          value: null
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: siwoo-aks-data
+spec:
+  ports:
+    - port: 8081
+      targetPort: 8081
+  selector:
+    app: siwoo-aks-data
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: siwoo-aks-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: siwoo-aks-web
+  template:
+    metadata:
+      labels:
+        app: siwoo-aks-web
+    spec:
+      containers:
+        - name: siwoo-aks-web
+          image: sm123tt/siwoo-aks-web:0.0.1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: env
+              value: dev
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: siwoo-aks-web
+  labels:
+    app: siwoo-aks-web
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: siwoo-aks-web
